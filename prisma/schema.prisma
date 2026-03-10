@@ -1,0 +1,200 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String
+  password  String
+  avatarUrl String?   @map("avatar_url")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  memberships Member[]
+  invitesSent Invite[] @relation("InvitedBy")
+
+  @@map("users")
+}
+
+model Organization {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String    @unique
+  avatarUrl String?   @map("avatar_url")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  members       Member[]
+  missions      Mission[]
+  dialogueTrees DialogueTree[]
+  invites       Invite[]
+
+  @@map("organizations")
+}
+
+enum EMemberRole {
+  ADMIN
+  DESIGNER
+  VIEWER
+
+  @@map("member_role")
+}
+
+model Member {
+  id             String      @id @default(uuid())
+  userId         String      @map("user_id")
+  organizationId String      @map("organization_id")
+  role           EMemberRole @default(DESIGNER)
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  deletedAt      DateTime?   @map("deleted_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  missionsAuthored  Mission[]        @relation("MissionAuthor")
+  versionsAuthored  MissionVersion[] @relation("VersionAuthor")
+  dialoguesAuthored DialogueTree[]   @relation("DialogueAuthor")
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@map("members")
+}
+
+enum EInviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELLED
+
+  @@map("invite_status")
+}
+
+model Invite {
+  id             String        @id @default(uuid())
+  email          String
+  role           EMemberRole   @default(DESIGNER)
+  status         EInviteStatus @default(PENDING)
+  token          String        @unique
+  organizationId String        @map("organization_id")
+  invitedById    String        @map("invited_by_id")
+  expiresAt      DateTime      @map("expires_at")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedBy    User         @relation("InvitedBy", fields: [invitedById], references: [id])
+
+  @@index([organizationId])
+  @@index([token])
+  @@map("invites")
+}
+
+enum EMissionStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  ARCHIVED
+
+  @@map("mission_status")
+}
+
+model Mission {
+  id             String         @id
+  organizationId String         @map("organization_id")
+  name           String
+  description    String?
+  status         EMissionStatus @default(DRAFT)
+  activeHash     String?        @map("active_hash")
+  authorId       String         @map("author_id")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  deletedAt      DateTime?      @map("deleted_at")
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  author       Member           @relation("MissionAuthor", fields: [authorId], references: [id])
+  versions     MissionVersion[]
+
+  @@index([organizationId, status])
+  @@index([organizationId, activeHash])
+  @@map("missions")
+}
+
+model MissionVersion {
+  id               String   @id @default(uuid())
+  missionId        String   @map("mission_id")
+  hash             String   @unique
+  graphData        Json     @map("graph_data")
+  missionData      Json     @map("mission_data")
+  isValid          Boolean  @default(false) @map("is_valid")
+  validationErrors Json?    @map("validation_errors")
+  authorId         String   @map("author_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  author  Member  @relation("VersionAuthor", fields: [authorId], references: [id])
+
+  @@index([missionId, createdAt(sort: Desc)])
+  @@map("mission_versions")
+}
+
+model DialogueTree {
+  id             String    @id
+  organizationId String    @map("organization_id")
+  name           String
+  description    String?
+  graphData      Json      @map("graph_data")
+  authorId       String    @map("author_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  author       Member       @relation("DialogueAuthor", fields: [authorId], references: [id])
+
+  @@index([organizationId])
+  @@map("dialogue_trees")
+}
+
+enum EPlayerMissionStatus {
+  ACTIVE
+  COMPLETED
+  FAILED
+  ABANDONED
+
+  @@map("player_mission_status")
+}
+
+model PlayerMissionState {
+  id             String               @id @default(uuid())
+  playerId       String               @map("player_id")
+  missionId      String               @map("mission_id")
+  organizationId String               @map("organization_id")
+  versionHash    String               @map("version_hash")
+  currentNode    String               @map("current_node")
+  status         EPlayerMissionStatus @default(ACTIVE)
+  nodeStates     Json                 @map("node_states")
+  startedAt      DateTime             @default(now()) @map("started_at")
+  completedAt    DateTime?            @map("completed_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+
+  @@unique([playerId, missionId])
+  @@index([organizationId, missionId])
+  @@index([playerId])
+  @@map("player_mission_states")
+}

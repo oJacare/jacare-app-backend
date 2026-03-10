@@ -1,0 +1,48 @@
+services:
+
+  jacare-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: jacare-backend
+    command: start:dev
+    volumes:
+      - .:/app
+      - /app/node_modules 
+    ports:
+      - '3000:3000'  
+      - '5555:5555'  
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgresql://jacare:jacare@jacare-db:5432/jacare_db
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+    env_file:
+      - .env
+    depends_on:
+      jacare-db:
+        condition: service_healthy  
+    restart: unless-stopped
+
+  jacare-db:
+    image: postgres:16-alpine
+    container_name: jacare-db
+    environment:
+      POSTGRES_USER: jacare
+      POSTGRES_PASSWORD: jacare
+      POSTGRES_DB: jacare_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - jacare_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U jacare -d jacare_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  jacare_db_data:
+    driver: local
