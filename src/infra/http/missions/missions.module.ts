@@ -1,10 +1,20 @@
 import { Module } from '@nestjs/common';
-import { GetActiveMissionUseCase } from '@/modules/missions/usecase/get-active/get-active-mission.usecase';
 import { MissionsController } from './missions.controller';
-import { PrismaService } from '@/infra/database/prisma.service';
+import { MissionsService } from './missions.service';
+import { JacareAuthModule } from '../auth/auth.module';
+import { MissionFacade } from '@/modules/missions/facade/mission.facade';
+import { MissionFacadeFactory } from '@/modules/missions/factory/facade.factory';
 
 @Module({
+  imports: [JacareAuthModule],
   controllers: [MissionsController],
-  providers: [PrismaService, GetActiveMissionUseCase],
+  providers: [
+    MissionsService,
+    {
+      provide: MissionFacade,
+      useFactory: () => MissionFacadeFactory.create(),
+    },
+  ],
+  exports: [MissionsService],
 })
 export class MissionsModule {}

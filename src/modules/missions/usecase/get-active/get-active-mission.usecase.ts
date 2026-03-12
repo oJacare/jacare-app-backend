@@ -1,36 +1,36 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@/infra/database/prisma.service';
+import { NotFoundError } from '@/modules/@shared/domain/errors/not-found.error';
+import { MissionGateway } from '../../gateway/mission.gateway';
+import {
+  GetActiveMissionInputDto,
+  GetActiveMissionUseCaseInterface,
+} from './get-active-mission.usecase.dto';
 
-@Injectable()
-export class GetActiveMissionUseCase {
-  constructor(private readonly prisma: PrismaService) {}
+export class GetActiveMissionUseCase implements GetActiveMissionUseCaseInterface {
+  constructor(private readonly missionRepository: MissionGateway) {}
 
-  public async execute(missionId: string) {
-    const mission = await this.prisma.mission.findUnique({
-      where: { id: missionId },
-      include: { versions: true },
-    });
-
-    if (!mission) {
-      throw new NotFoundException(`Jacaré não achou a missão: ${missionId}`);
-    }
-
-    if (!mission.activeHash) {
-      throw new NotFoundException(
-        `A missão ${missionId} existe, mas não tem versão publicada.`,
-      );
-    }
-
-    const activeVersion = mission.versions.find(
-      (v) => v.hash === mission.activeHash,
+  async execute(input: GetActiveMissionInputDto): Promise<object> {
+    const mission = await this.missionRepository.findByIdOrFail(
+      input.missionId,
+      input.organizationId,
     );
 
-    if (!activeVersion) {
-      throw new Error(
-        'Estado corrompido: O Hash ativo não aponta para nenhuma versão!',
+    if (!mission.activeHash) {
+      throw new NotFoundError(
+        `A missão '${input.missionId}' existe, mas não tem versão publicada.`,
       );
     }
 
-    return activeVersion.missionData;
+    const version = await this.missionRepository.findVersionByHash(
+      input.missionId,
+      mission.activeHash,
+    );
+
+    if (!version) {
+      throw new Error(
+        `Estado corrompido: activeHash '${mission.activeHash}' não aponta para nenhuma versão existente.`,
+      );
+    }
+
+    return version.missionData;
   }
 }
