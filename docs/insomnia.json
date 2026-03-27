@@ -2,13 +2,13 @@
   "_type": "export",
   "__export_format": 4,
   "__export_date": "2026-03-27T00:00:00.000Z",
-  "__export_source": "jacare-flow",
+  "__export_source": "jacare",
   "resources": [
     {
       "_id": "wrk_jacare",
       "_type": "workspace",
-      "name": "Jacare Flow",
-      "description": "Jacare Maestro — compiler and API layer for the Jacare Flow ecosystem."
+      "name": "Jacare",
+      "description": "Jacare backend — compiler and API layer for the Jacare ecosystem."
     },
     {
       "_id": "env_dev",
