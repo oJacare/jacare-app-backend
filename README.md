@@ -1,98 +1,89 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <a href="https://vercel.com">
+    <img src="https://avatars.githubusercontent.com/u/271130245?s=400&u=2259ff9edea9b7ffd9c1151df6cfaea18ed15027&v=4" height="96">
+    <h3 align="center">Jacare</h3>
+  </a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+  Design. Compile. Play. 
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+<p align="center">
+  <a href="#quick-start"><strong>Quick Start</strong></a> ·
+  <a href="#api-reference"><strong>API Reference</strong></a> ·
+  <a href="#ecosystem"><strong>Ecosystem</strong></a> ·
+  <a href="#contributing"><strong>Contributing</strong></a>
+</p>
 
-## Description
+<br/>
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## What is this?
 
-## Project setup
+Jacare Maestro is the backend of [Jacare Flow](https://github.com/lisboon/jacare-flow) — an open-source visual state machine engine for Unreal Engine 5.
 
-```bash
-$ npm install
-```
+It receives mission graphs from the Canvas editor, validates them for loops and dead-ends (DAG), compiles them into a strict JSON contract with a SHA-256 hash, and serves the result to the Unreal plugin via a secure M2M REST API.
 
-## Compile and run the project
+## Ecosystem
 
-```bash
-# development
-$ npm run start
+| Repository | Role |
+|------------|------|
+| **jacare-app-backend** ← you are here | Compiler, versioning, and REST API |
+| [jacare-app-frontend](../jacare-app-frontend) | Visual graph editor for Game Designers |
+| [jacare-app-unreal](../jacare-app-unreal) | UE5 C++ plugin that executes the missions |
 
-# watch mode
-$ npm run start:dev
+## Prerequisites
 
-# production mode
-$ npm run start:prod
-```
+- Node.js 20+
+- PostgreSQL 15+
 
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Quick Start
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+git clone https://github.com/lisboon/jacare-app-backend
+cd jacare-app-backend
+
+cp .env.example .env
+# Fill in DATABASE_URL and JWT_SECRET
+
+npm install
+npx prisma migrate dev
+npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Server starts at `http://localhost:3000`.
 
-## Resources
+## API Reference
 
-Check out a few resources that may come in handy when working with NestJS:
+### Auth
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/auth/signup` | Create account + organization atomically |
+| POST | `/auth/login` | Sign in — returns a JWT |
+| GET | `/auth/me` | Current user with org context |
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Missions
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/missions` | Create a mission (status: `DRAFT`) |
+| POST | `/missions/:id/versions` | Save a version — computes SHA-256 |
+| PUT | `/missions/:id/publish` | Set a version as active |
+| GET | `/missions/:id/versions` | List all versions, newest first |
+| GET | `/missions/:id/active` | Get the current published version |
 
-## Support
+### Engine (M2M)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Authenticated via `x-api-key` header. Keys are generated through `/api-keys`.
 
-## Stay in touch
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/missions/engine/:id/active` | Fetch the compiled mission JSON (called by the Unreal plugin) |
+| POST | `/api-keys` | Create an engine API key |
+| DELETE | `/api-keys/:id` | Revoke a key |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Stack
 
-## License
+NestJS 11 · Prisma · PostgreSQL · DDD + Clean Architecture
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Contributing
+
+Contributions are welcome. Please read [CLAUDE.md](./CLAUDE.md) for architecture conventions before submitting a pull request.
