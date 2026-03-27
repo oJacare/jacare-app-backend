@@ -28,8 +28,8 @@ It receives mission graphs from the Canvas editor, validates them for loops and 
 | Repository | Role |
 |------------|------|
 | **jacare-app-backend** ← you are here | Compiler, versioning, and REST API |
-| [jacare-app-frontend](../jacare-app-frontend) | Visual graph editor for Game Designers |
-| [jacare-app-unreal](../jacare-app-unreal) | UE5 C++ plugin that executes the missions |
+| [jacare-app-frontend](https://github.com/oJacare/jacare-app-frontend) | Visual graph editor for Game Designers |
+| [jacare-app-unreal](https://github.com/oJacare/jacare-app-frontend) | UE5 C++ plugin that executes the missions |
 
 ## Prerequisites
 
