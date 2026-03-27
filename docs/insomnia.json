@@ -1,0 +1,218 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-03-27T00:00:00.000Z",
+  "__export_source": "jacare-flow",
+  "resources": [
+    {
+      "_id": "wrk_jacare",
+      "_type": "workspace",
+      "name": "Jacare Flow",
+      "description": "Jacare Maestro — compiler and API layer for the Jacare Flow ecosystem."
+    },
+    {
+      "_id": "env_dev",
+      "_type": "environment",
+      "name": "Development",
+      "parentId": "wrk_jacare",
+      "data": {
+        "base_url": "http://localhost:3001",
+        "bearer_token": "",
+        "api_key": "",
+        "mission_id": "qst_old_country",
+        "version_hash": "",
+        "api_key_id": ""
+      }
+    },
+
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "name": "Auth",
+      "parentId": "wrk_jacare"
+    },
+    {
+      "_id": "req_signup",
+      "_type": "request",
+      "name": "Signup",
+      "parentId": "fld_auth",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/signup",
+      "description": "Creates a User, Organization, and Member atomically. Returns a JWT on success.",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Wendel Lisboa\",\n  \"email\": \"wendel@studio.com\",\n  \"password\": \"password123\",\n  \"organizationName\": \"My Game Studio\"\n}"
+      }
+    },
+    {
+      "_id": "req_login",
+      "_type": "request",
+      "name": "Login",
+      "parentId": "fld_auth",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "description": "Returns a JWT. Copy the token into the `bearer_token` environment variable.",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"wendel@studio.com\",\n  \"password\": \"password123\"\n}"
+      }
+    },
+    {
+      "_id": "req_me",
+      "_type": "request",
+      "name": "Me",
+      "parentId": "fld_auth",
+      "method": "GET",
+      "url": "{{ _.base_url }}/auth/me",
+      "description": "Returns the current member with organization context.",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.bearer_token }}" }
+      ]
+    },
+
+    {
+      "_id": "fld_missions",
+      "_type": "request_group",
+      "name": "Missions",
+      "parentId": "wrk_jacare"
+    },
+    {
+      "_id": "req_create_mission",
+      "_type": "request",
+      "name": "Create Mission",
+      "parentId": "fld_missions",
+      "method": "POST",
+      "url": "{{ _.base_url }}/missions",
+      "description": "Creates a mission with status DRAFT. ID must be snake_case starting with a letter (e.g. qst_old_country).",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.bearer_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"qst_old_country\",\n  \"name\": \"The Old Country\",\n  \"description\": \"Find and eliminate Viktor\"\n}"
+      }
+    },
+    {
+      "_id": "req_save_version",
+      "_type": "request",
+      "name": "Save Version",
+      "parentId": "fld_missions",
+      "method": "POST",
+      "url": "{{ _.base_url }}/missions/{{ _.mission_id }}/versions",
+      "description": "Saves a new mission version. The backend computes a SHA-256 hash from `missionData` and returns it. Copy the hash into `version_hash` to publish.",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.bearer_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"graphData\": {\n    \"nodes\": [\n      {\n        \"id\": \"n01\",\n        \"type\": \"Spawn.Actor\",\n        \"position\": { \"x\": 100, \"y\": 200 },\n        \"data\": {\n          \"class_path\": \"/Game/NPCs/BP_Viktor_C\",\n          \"spawn_location\": { \"x\": 500, \"y\": 500, \"z\": 100 }\n        }\n      }\n    ],\n    \"edges\": []\n  },\n  \"missionData\": {\n    \"mission_id\": \"qst_old_country\",\n    \"meta\": {\n      \"version\": \"1.0.0\",\n      \"hash\": \"\"\n    },\n    \"graph\": {\n      \"start_node\": \"n01\",\n      \"nodes\": {\n        \"n01\": {\n          \"type\": \"Spawn.Actor\",\n          \"class_path\": \"/Game/NPCs/BP_Viktor_C\",\n          \"spawn_location\": { \"x\": 500, \"y\": 500, \"z\": 100 },\n          \"on_success\": []\n        }\n      }\n    }\n  },\n  \"isValid\": true,\n  \"validationErrors\": null\n}"
+      }
+    },
+    {
+      "_id": "req_publish",
+      "_type": "request",
+      "name": "Publish Mission",
+      "parentId": "fld_missions",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/missions/{{ _.mission_id }}/publish",
+      "description": "Sets a version as active. The Unreal plugin will fetch this version on the next `LoadAndSpawnMission` call.",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.bearer_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"versionHash\": \"{{ _.version_hash }}\"\n}"
+      }
+    },
+    {
+      "_id": "req_list_versions",
+      "_type": "request",
+      "name": "List Versions",
+      "parentId": "fld_missions",
+      "method": "GET",
+      "url": "{{ _.base_url }}/missions/{{ _.mission_id }}/versions",
+      "description": "Returns all saved versions for a mission, newest first.",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.bearer_token }}" }
+      ]
+    },
+    {
+      "_id": "req_get_active",
+      "_type": "request",
+      "name": "Get Active Version",
+      "parentId": "fld_missions",
+      "method": "GET",
+      "url": "{{ _.base_url }}/missions/{{ _.mission_id }}/active",
+      "description": "Returns the compiled mission JSON for the currently published version.",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.bearer_token }}" }
+      ]
+    },
+
+    {
+      "_id": "fld_engine",
+      "_type": "request_group",
+      "name": "Engine (M2M)",
+      "parentId": "wrk_jacare",
+      "description": "Authenticated via x-api-key header. Used by the Unreal plugin."
+    },
+    {
+      "_id": "req_engine_active",
+      "_type": "request",
+      "name": "Get Active Mission",
+      "parentId": "fld_engine",
+      "method": "GET",
+      "url": "{{ _.base_url }}/missions/engine/{{ _.mission_id }}/active",
+      "description": "Returns the compiled mission JSON. This is the endpoint called by UJacareMissionSubsystem::LoadAndSpawnMission.",
+      "headers": [
+        { "name": "x-api-key", "value": "{{ _.api_key }}" }
+      ]
+    },
+    {
+      "_id": "req_create_api_key",
+      "_type": "request",
+      "name": "Create API Key",
+      "parentId": "fld_engine",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api-keys",
+      "description": "Creates an M2M API key. The `rawKey` is returned only once — copy it to the Unreal plugin's Project Settings.",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.bearer_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Unreal Development\",\n  \"expiresAt\": null\n}"
+      }
+    },
+    {
+      "_id": "req_list_api_keys",
+      "_type": "request",
+      "name": "List API Keys",
+      "parentId": "fld_engine",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api-keys",
+      "description": "Lists all API keys for the organization. The key hash is never returned.",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.bearer_token }}" }
+      ]
+    },
+    {
+      "_id": "req_delete_api_key",
+      "_type": "request",
+      "name": "Revoke API Key",
+      "parentId": "fld_engine",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/api-keys/{{ _.api_key_id }}",
+      "description": "Revokes an API key immediately. The Unreal plugin will receive 401 on subsequent requests.",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.bearer_token }}" }
+      ]
+    }
+  ]
+}

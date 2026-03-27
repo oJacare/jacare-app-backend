@@ -10,11 +10,11 @@ services:
       - .:/app
       - /app/node_modules 
     ports:
-      - '3000:3000'  
+      - '3001:3001'  
       - '5555:5555'  
     environment:
       - NODE_ENV=development
-      - PORT=3000
+      - PORT=3001
       - DATABASE_URL=postgresql://jacare:jacare@jacare-db:5432/jacare_db
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
