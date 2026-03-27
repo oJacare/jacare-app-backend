@@ -39,7 +39,7 @@ It receives mission graphs from the Canvas editor, validates them for loops and 
 ## Quick Start
 
 ```bash
-git clone https://github.com/lisboon/jacare-app-backend
+git clone https://github.com/oJacare/jacare-app-backend.git
 cd jacare-app-backend
 
 cp .env.example .env
