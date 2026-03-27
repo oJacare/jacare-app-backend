@@ -1,31 +1,31 @@
 # jacare-app-backend
 
-NestJS 11 + DDD estrito + Prisma + PostgreSQL. Compilador e API do Jacare Flow.
+NestJS 11 · Prisma · PostgreSQL · DDD + Clean Architecture. The compiler and API layer of Jacare Flow.
 
-## REGRA OBRIGATÓRIA: Manter Skills Atualizadas
+## Mandatory Rule: Keep Skills Up to Date
 
-**Após QUALQUER interação com o projeto** — leitura de código, criação de use cases, correção de bugs, refatoração ou resposta a perguntas — **você DEVE atualizar a skill correspondente** em `.claude/skills/`.
+**After ANY interaction with this project** — reading code, creating use cases, fixing bugs, refactoring, or answering questions — **you MUST update the corresponding skill** in `.claude/skills/`.
 
-Isso inclui:
-- **Novo use case, entidade ou rota** → atualizar skill do módulo (`/jacare-backend`)
-- **Novo Node Type no catálogo** → atualizar `/new-jacare-mission-type`
-- **Mudança em DTO ou contrato JSON** → atualizar `/jacare-backend` E `/new-jacare-mission-type`
-- **Novo padrão, guard ou erro** → atualizar `/jacare-backend`
-- **Mudança no schema Prisma** → atualizar `/jacare-backend`
+This includes:
+- **New use case, entity, or route** → update `/jacare-backend`
+- **New Node Type in the catalog** → update `/new-jacare-mission-type`
+- **DTO or JSON contract change** → update `/jacare-backend` AND `/new-jacare-mission-type`
+- **New pattern, guard, or error type** → update `/jacare-backend`
+- **Prisma schema change** → update `/jacare-backend`
 
-**As skills são a fonte de verdade viva. Skills desatualizadas corrompem futuras interações.**
-
----
-
-## Contexto
-
-**Jacare Flow** é uma State Machine Engine open-source para UE5. Este backend (Jacare Maestro) é o compilador e API: recebe grafos do Canvas, valida DAG, gera SHA-256, persiste versões e serve o contrato JSON para a Unreal via HTTP M2M.
-
-Fase atual: **Fase 2 concluída → suportando Fase 3 (Canvas)**.
+**Skills are the living source of truth. Stale skills corrupt future interactions.**
 
 ---
 
-## Arquitetura
+## Context
+
+**Jacare Flow** is an open-source visual state machine engine for UE5. This backend (Jacare Maestro) is the compiler and API: receives mission graphs from the Canvas, validates the DAG, generates a SHA-256 hash, persists versions, and serves the compiled JSON contract to the Unreal plugin via a secure M2M REST API.
+
+Current phase: **Phase 2 complete → supporting Phase 3 (Canvas)**.
+
+---
+
+## Architecture
 
 ```
 src/
@@ -38,10 +38,10 @@ src/
 │   │   └── shared/
 │   │       └── errors/   # NotFoundErrorFilter, EntityValidationErrorFilter
 │   └── database/
-│       └── prisma.instance.ts   # Singleton manual do PrismaClient (o usado)
+│       └── prisma.instance.ts   # Manual Prisma singleton (the one in use)
 └── modules/
     ├── @shared/domain/
-    │   ├── entity/        # BaseEntity com Notification pattern
+    │   ├── entity/        # BaseEntity with Notification pattern
     │   ├── errors/        # NotFoundError, EntityValidationError
     │   └── events/        # EventDispatcher
     ├── account/           # User, Organization, Member, Invite
@@ -49,49 +49,49 @@ src/
     └── missions/          # Mission, MissionVersion, DialogueTree
 ```
 
-### Camadas (DDD estrito)
+### Layer responsibilities
 
-| Camada | O que vai aqui | O que nunca vai aqui |
-|--------|---------------|----------------------|
-| `domain/` | Entidade pura TypeScript, validação, regras de negócio | NestJS, Prisma, qualquer lib externa |
-| `gateway/` | Interface (contrato) de persistência | Implementação |
-| `repository/` | Implementação Prisma do gateway | Lógica de negócio |
-| `usecase/` | Orquestração — um arquivo por caso de uso | Queries Prisma diretas |
-| `facade/` | Ponto de entrada único do módulo (Service Locator) | Lógica |
-| `factory/` | Instancia use cases injetando dependências | Framework code |
-| `infra/http/` | Controllers, Guards, Filters | Regras de negócio |
+| Layer | Belongs here | Never here |
+|-------|-------------|------------|
+| `domain/` | Pure TypeScript — entities, validation, business rules | NestJS, Prisma, any external lib |
+| `gateway/` | Persistence interface (contract) | Implementation |
+| `repository/` | Prisma implementation of gateway | Business logic |
+| `usecase/` | Orchestration — one file per use case | Direct Prisma queries |
+| `facade/` | Single entry point for the module (Service Locator) | Logic |
+| `factory/` | Instantiates use cases with injected dependencies | Framework code |
+| `infra/http/` | Controllers, Guards, Filters | Business rules |
 
 ---
 
-## Convenções
+## Conventions
 
-### Nomenclatura de arquivos
+### File naming
 ```
-[nome].entity.ts
-[nome].usecase.ts
-[nome].usecase.dto.ts
-[nome].gateway.ts
-[nome].repository.ts
-[nome].facade.ts
-[nome].facade.factory.ts
+[name].entity.ts
+[name].usecase.ts
+[name].usecase.dto.ts
+[name].gateway.ts
+[name].repository.ts
+[name].facade.ts
+[name].facade.factory.ts
 ```
 
-### Nomenclatura de classes
+### Class naming
 ```typescript
-MissionEntity          // entidade de domínio
-SaveVersionUseCase     // caso de uso
-MissionGateway         // interface de persistência
-MissionRepository      // implementação Prisma
-MissionFacade          // ponto de entrada do módulo
-MissionFacadeFactory   // factory de DI
+MissionEntity          // domain entity
+SaveVersionUseCase     // use case
+MissionGateway         // persistence interface
+MissionRepository      // Prisma implementation
+MissionFacade          // module entry point
+MissionFacadeFactory   // DI factory
 ```
 
 ### DTOs
-- Interface de contrato: `SaveVersionInputDto` / `SaveVersionOutputDto`
-- Cada use case tem seu próprio `.usecase.dto.ts`
-- DTOs são interfaces TypeScript puras — sem decorators de framework
+- Contract interface: `SaveVersionInputDto` / `SaveVersionOutputDto`
+- Each use case has its own `.usecase.dto.ts` file
+- DTOs are pure TypeScript interfaces — no framework decorators
 
-### Enums (Prisma + TypeScript)
+### Enums
 ```typescript
 EMissionStatus.DRAFT | REVIEW | APPROVED | ARCHIVED
 EMemberRole.ADMIN | DESIGNER | VIEWER
@@ -103,40 +103,40 @@ EPlayerMissionStatus.ACTIVE | COMPLETED | FAILED | ABANDONED
 
 ---
 
-## Padrões
+## Patterns
 
 ### Factory DI
 ```typescript
-// factory instancia tudo sem NestJS DI
-MissionFacadeFactory.create()  // compõe gateway → usecase → facade
+// Factory composes everything without NestJS DI
+MissionFacadeFactory.create()
 
-// módulo NestJS usa useFactory:
+// NestJS module uses useFactory:
 { provide: MissionFacade, useFactory: () => MissionFacadeFactory.create() }
 ```
 
-### Erros tipados
-| Erro | HTTP | Quando usar |
-|------|------|-------------|
-| `NotFoundError` | 404 | Entidade não encontrada |
-| `EntityValidationError` | 422 | Validação de domínio falhou |
-| `new Error()` | 500 | Corrupção de dados real (reservado) |
+### Typed errors
+| Error | HTTP | When to use |
+|-------|------|-------------|
+| `NotFoundError` | 404 | Entity not found |
+| `EntityValidationError` | 422 | Domain validation failed |
+| `new Error()` | 500 | Genuine data corruption — reserved |
 
-### Operações atômicas
-Qualquer escrita em múltiplas tabelas usa `prisma.$transaction()`.
-Referência canônica: `account/repository/` — `createSignupAtomically()`.
+### Atomic writes
+Any operation touching multiple tables uses `prisma.$transaction()`.
+Canonical reference: `account/repository/` — `createSignupAtomically()`.
 
-### Auth JWT
+### JWT auth
 - Payload: `{ memberId, organizationId, role }`
-- `JWT_SECRET` obrigatório — lança `Error` se ausente, sem fallback
+- `JWT_SECRET` is required — throws `Error` if missing, no fallback
 
-### Auth M2M (Unreal Plugin)
-- Formato: `jcr_live_{32bytes_hex}`
-- Armazenado como SHA-256 (nunca o key em texto puro)
+### M2M auth (Unreal Plugin)
+- Format: `jcr_live_{32bytes_hex}`
+- Stored as SHA-256 (plaintext never persisted)
 - Header: `x-api-key`
-- Isolado por `organizationId`
+- Scoped to `organizationId` — a key from one org cannot access another
 
 ### Node Types (Gameplay Tags)
-O campo `type` de cada nó segue `Categoria.Acao`:
+The `type` field on each node follows `Category.Action`:
 ```
 Spawn.Actor | Objective.Kill | Objective.Goto | Objective.Collect | Objective.Interact
 Condition.And | Condition.Or | Condition.Not | Condition.Time | Condition.Faction
@@ -146,66 +146,76 @@ Reward.Give | Flag.Set | Flow.Wait | Flow.Branch | Flow.Custom
 
 ---
 
-## Comandos
+## API Reference
+
+Import `docs/insomnia.json` into Insomnia for the full collection with example payloads and environment variables.
+
+Quick reference:
+
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| POST | `/auth/signup` | — | Create account + org atomically |
+| POST | `/auth/login` | — | Sign in — returns JWT |
+| GET | `/auth/me` | JWT | Current member with org context |
+| POST | `/missions` | JWT · DESIGNER | Create a mission (status: DRAFT) |
+| POST | `/missions/:id/versions` | JWT · DESIGNER | Save version — computes SHA-256 |
+| PUT | `/missions/:id/publish` | JWT · DESIGNER | Set a version as active |
+| GET | `/missions/:id/versions` | JWT · VIEWER | List all versions, newest first |
+| GET | `/missions/:id/active` | JWT · VIEWER | Current published version |
+| GET | `/missions/engine/:id/active` | x-api-key | Compiled JSON for the Unreal plugin |
+| POST | `/api-keys` | JWT · ADMIN | Create an engine API key |
+| GET | `/api-keys` | JWT | List org's API keys |
+| DELETE | `/api-keys/:id` | JWT · ADMIN | Revoke a key |
+
+---
+
+## Commands
 
 ```bash
-npm run start:dev     # Dev server (watch)
-npm run build         # Production build
-npm run start:prod    # Rodar build de produção
-npx prisma generate   # Regenerar Prisma client após schema change
-npx prisma migrate dev --name nome_da_migracao   # Nova migration
-npx prisma studio     # GUI do banco
-npm run test          # Unit tests
-npm run test:e2e      # E2E tests
-npm run lint          # ESLint
+npm run start:dev                                      # Dev server (watch)
+npm run build                                          # Production build
+npm run start:prod                                     # Run production build
+npx prisma generate                                    # Regenerate client after schema changes
+npx prisma migrate dev --name migration_name           # Create a new migration
+npx prisma studio                                      # Database GUI
+npm run test                                           # Unit tests
+npm run test:e2e                                       # E2E tests
 ```
 
 ---
 
 ## Skills (Slash Commands)
 
-| Skill | Quando usar |
+| Skill | When to use |
 |-------|-------------|
-| `/review` | Review completo de arquitetura antes de PR |
-| `/commit` | Gerar commit message em Conventional Commits |
-| `/new-jacare-mission-type` | Scaffold cross-ecosystem para novo Node Type |
+| `/review` | Full architecture review before a PR |
+| `/commit` | Generate a Conventional Commits message |
+| `/new-jacare-mission-type` | Cross-ecosystem scaffold for a new Node Type |
 
 ---
 
-## Rules (Contextuais)
+## Rules (Contextual)
 
-Rules path-specific a criar em `.claude/rules/`:
-- `architecture.md` — Regras do domain layer (`src/modules/**/domain/**`)
-- `controllers.md` — Regras do HTTP layer (`src/infra/http/**`)
-
----
-
-## Tech Debt Conhecido
-
-1. `PrismaService` (NestJS) definido mas não usado — só o singleton `prisma.instance.ts` é utilizado
-2. `EventDispatcher` + domain events definidos mas sem listeners ativos
-3. Camada Service é proxy inútil — delega tudo para Facade, pode ser removida
-4. Zero testes unitários (1 e2e trivial)
-5. Sem rate limiting nos endpoints
+Path-specific rules to create in `.claude/rules/`:
+- `architecture.md` — Domain layer rules (`src/modules/**/domain/**`)
+- `controllers.md` — HTTP layer rules (`src/infra/http/**`)
 
 ---
 
-## Setup Local
+## Setup
 
 ```bash
 cp .env.example .env
-# Preencher DATABASE_URL e JWT_SECRET
+# Fill in DATABASE_URL and JWT_SECRET
 
 npm install
-npx prisma generate
 npx prisma migrate dev
-
 npm run start:dev
 ```
 
-### Variáveis obrigatórias
+### Required environment variables
 ```
 DATABASE_URL=postgresql://user:pass@localhost:5432/jacare
-JWT_SECRET=...          # Obrigatório — app não sobe sem este
-NODE_ENV=development    # Controla log level do Prisma
+JWT_SECRET=...        # Required — app won't start without this
+NODE_ENV=development  # Controls Prisma log verbosity
 ```
