@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://vercel.com">
+  <a href="#">
     <img src="https://avatars.githubusercontent.com/u/271130245?s=400&u=2259ff9edea9b7ffd9c1151df6cfaea18ed15027&v=4" height="96">
     <h3 align="center">Jacare</h3>
   </a>
@@ -29,7 +29,7 @@ It receives mission graphs from the Canvas editor, validates them for loops and 
 |------------|------|
 | **jacare-app-backend** ← you are here | Compiler, versioning, and REST API |
 | [jacare-app-frontend](https://github.com/oJacare/jacare-app-frontend) | Visual graph editor for Game Designers |
-| [jacare-app-unreal](https://github.com/oJacare/jacare-app-frontend) | UE5 C++ plugin that executes the missions |
+| [jacare-app-unreal](https://github.com/oJacare/jacare-app-unreal) | UE5 C++ plugin that executes the missions |
 
 ## Prerequisites
 
@@ -50,7 +50,7 @@ npx prisma migrate dev
 npm run start:dev
 ```
 
-Server starts at `http://localhost:3000`.
+Server starts at `http://localhost:3001`.
 
 ## API Reference
 
