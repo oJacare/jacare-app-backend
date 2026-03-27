@@ -19,7 +19,7 @@
 
 ## What is this?
 
-Jacare Maestro is the backend of [Jacare Flow](https://github.com/lisboon/jacare-flow) — an open-source visual state machine engine for Unreal Engine 5.
+Jacare-app-backend is the backend of [Jacare](https://github.com/oJacare/jacare-app-backend) — an open-source visual state machine engine for Unreal Engine 5.
 
 It receives mission graphs from the Canvas editor, validates them for loops and dead-ends (DAG), compiles them into a strict JSON contract with a SHA-256 hash, and serves the result to the Unreal plugin via a secure M2M REST API.
 
