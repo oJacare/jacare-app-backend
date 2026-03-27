@@ -1,6 +1,6 @@
 # jacare-app-backend
 
-NestJS 11 · Prisma · PostgreSQL · DDD + Clean Architecture. The compiler and API layer of Jacare Flow.
+NestJS 11 · Prisma · PostgreSQL · DDD + Clean Architecture. The compiler and API layer of Jacare.
 
 ## Mandatory Rule: Keep Skills Up to Date
 
@@ -19,7 +19,7 @@ This includes:
 
 ## Context
 
-**Jacare Flow** is an open-source visual state machine engine for UE5. This backend (Jacare Maestro) is the compiler and API: receives mission graphs from the Canvas, validates the DAG, generates a SHA-256 hash, persists versions, and serves the compiled JSON contract to the Unreal plugin via a secure M2M REST API.
+**Jacare** is an open-source visual state machine engine for UE5. This backend (Jacare) is the compiler and API: receives mission graphs from the Canvas, validates the DAG, generates a SHA-256 hash, persists versions, and serves the compiled JSON contract to the Unreal plugin via a secure M2M REST API.
 
 Current phase: **Phase 2 complete → supporting Phase 3 (Canvas)**.
 
